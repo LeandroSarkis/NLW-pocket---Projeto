@@ -1,6 +1,6 @@
 const { select, input, checkbox} = require('@inquirer/prompts')
 
-const goals = [];
+let goals = [];
 
 
 const registerGoal = async () => {
@@ -58,7 +58,7 @@ const finishedGoals = async () => {
     }
 
     await select({
-        message: "Metas realizadas " + finished.length,
+        message: "Metas realizadas: " + finished.length,
         choices: [...finished]
     })
 }
@@ -75,8 +75,30 @@ const openGoals = async () => {
     }
 
     await select({
-        message: "Metas abertas " + open.length,
+        message: "Metas abertas: " + open.length,
         choices: [...open]
+    })
+}
+
+const deleteGoals = async () => {
+    const metasDesmarcadas = goals.map((goal) => {
+        return { value: goal.value, checked: false}
+    })
+
+    const willDeleteItem = await checkbox({
+        message: "Use as setas para mudar de meta, o espaço para marcar ou desmarcar e o Enter para finalizar essa etapa",
+        choices: [...metasDesmarcadas],
+        instructions: false
+    })
+
+    if(willDeleteItem.length === 0) {
+        console.log("Nenhum item para deletar!")
+    }
+
+    willDeleteItem.forEach((item) => {
+        goals = goals.filter((goal) => {
+            return goal.value != item
+        })
     })
 }
 
@@ -102,6 +124,10 @@ const start = async () => {
                     value: "abertas"
                 },
                 {
+                    name: "Deletar metas",
+                    value: "deletar"
+                },
+                {
                     name: "Sair",
                     value: "sair"
                 }
@@ -121,6 +147,9 @@ const start = async () => {
                 break
             case "abertas":
                 await openGoals()
+                break
+            case "deletar":
+                await deleteGoals()
                 break
             case "sair":
                 return
