@@ -25,15 +25,15 @@ const goalList = async () => {
         choices: [...goals],
         instructions: false
     })
+    
+    goals.forEach((g) => {
+        g.checked = false;
+    })
 
     if(answers.length === 0) {
         console.log("Nenhuma meta selecionada");
         return;
     }
-
-    goals.forEach((g) => {
-        g.checked = false;
-    })
 
     answers.forEach((answer) => {
         const goal = goals.find((m) => {
