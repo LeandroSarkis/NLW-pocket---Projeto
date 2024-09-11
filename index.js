@@ -1,8 +1,23 @@
 const { select, input, checkbox} = require('@inquirer/prompts')
+const fs = require("fs").promises
 
-let goals = [];
+let goals;
 
 let message = "Bem-vindo ao App de Metas"
+
+const loadGoals = async () => {
+    try {
+        const dados = await fs.readFile("goals.json", "utf-8")
+        goals = JSON.parse(dados)
+    }
+    catch(error) {
+        goals = []
+    }
+}
+
+const saveGoals = async () => {
+    await fs.writeFile("goals.json", JSON.stringify(goals, null, 2))
+}
 
 const registerGoal = async () => {
     const goal = await input({
@@ -93,7 +108,7 @@ const deleteGoals = async () => {
         message = "Nenhuma meta criada!"
         return
     }
-    
+
     const metasDesmarcadas = goals.map((goal) => {
         return { value: goal.value, checked: false}
     })
@@ -126,8 +141,10 @@ const showMessage = () => {
 }
 
 const start = async () => {
+    await loadGoals()
     while(true) {
         showMessage()
+        await saveGoals()
         const option = await select({
             message: "Menu >",
             choices: [
