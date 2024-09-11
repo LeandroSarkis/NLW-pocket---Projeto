@@ -2,6 +2,7 @@ const { select, input, checkbox} = require('@inquirer/prompts')
 
 let goals = [];
 
+let message = "Bem-vindo ao App de Metas"
 
 const registerGoal = async () => {
     const goal = await input({
@@ -9,7 +10,7 @@ const registerGoal = async () => {
     });
 
     if(goal.length === 0) {
-        console.log("A meta não pode ser vazia!");
+        message = "A meta não pode ser vazia!";
         return;
     } 
 
@@ -17,9 +18,16 @@ const registerGoal = async () => {
         value: goal,
         checked: false
     })
+
+    message = "Meta cadastrada com sucesso!"
 }
 
 const goalList = async () => {
+    if(goals.length === 0){
+        message = "Nenhuma meta criada!"
+        return
+    }
+
     const answers = await checkbox({
         message: "Use as setas para mudar de meta, o espaço para marcar ou desmarcar e o Enter para finalizar essa etapa",
         choices: [...goals],
@@ -31,7 +39,7 @@ const goalList = async () => {
     })
 
     if(answers.length === 0) {
-        console.log("Nenhuma meta selecionada");
+        message ="Nenhuma meta selecionada";
         return;
     }
 
@@ -43,7 +51,7 @@ const goalList = async () => {
         goal.checked = true;
     })
 
-    console.log("Meta(s) concluídas")
+    message = "Meta(s) marcadas como concluída(s)"
 }
 
 const finishedGoals = async () => { 
@@ -53,7 +61,7 @@ const finishedGoals = async () => {
     })
 
     if(finished.length === 0) {
-        console.log("Não existe metas realizadas! :(")
+        message ="Não existe metas realizadas! :("
         return
     }
 
@@ -70,7 +78,7 @@ const openGoals = async () => {
     })
 
     if(open.length === 0) {
-        console.log("Não existe metas abertas! :)")
+        message = "Não existe metas abertas! :)"
         return
     }
 
@@ -81,6 +89,11 @@ const openGoals = async () => {
 }
 
 const deleteGoals = async () => {
+    if(goals.length === 0){
+        message = "Nenhuma meta criada!"
+        return
+    }
+    
     const metasDesmarcadas = goals.map((goal) => {
         return { value: goal.value, checked: false}
     })
@@ -92,7 +105,7 @@ const deleteGoals = async () => {
     })
 
     if(willDeleteItem.length === 0) {
-        console.log("Nenhum item para deletar!")
+        message = "Nenhum item para deletar!"
     }
 
     willDeleteItem.forEach((item) => {
@@ -102,8 +115,19 @@ const deleteGoals = async () => {
     })
 }
 
+const showMessage = () => {
+    console.clear()
+
+    if(message != "") {
+        console.log(message)
+        console.log("")
+        message = ""
+    }
+}
+
 const start = async () => {
     while(true) {
+        showMessage()
         const option = await select({
             message: "Menu >",
             choices: [
@@ -137,7 +161,6 @@ const start = async () => {
         switch(option) {
             case "cadastrar":
                 await registerGoal()
-                console.log(goals)
                 break
             case "listar":
                 await goalList()
